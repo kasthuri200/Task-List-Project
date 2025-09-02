@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+</head>
+
+<body>
+    <h1>My Task List</h1>
+    <input id="task-input">
+    <ul id="task-list">
+        <!-- Tasks will be added here -->
+    </ul>
+    <input type="text" placeholder="Enter a new task">
+    <!-- Button to add the task -->
+    <button id="add-task">Add Task</button>
+    
+    <!-- Task list will appear here -->
+    <ul id="task-list">
+        <!-- Tasks will be added here -->
+    </ul>
+    <!-- Add this below your Add Task button -->
+    <button id="clear-all">Clear All</button>
+
+
+
+</body>
+<script>
+    const input = document.getElementById("task-input");
+    const button = document.getElementById("add-task");
+    const taskList = document.getElementById("task-list");
+    const clearBtn = document.getElementById("clear-all");
+
+    // ✅ Load saved tasks on page load
+    window.onload = function () {
+        let savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        savedTasks.forEach(task => addTask(task.text, task.completed));
+    };
+
+    // ✅ Add task function
+    function addTask(taskText, isCompleted = false) {
+        const li = document.createElement("li");
+
+        // Add text + date
+        const now = new Date().toLocaleString();
+        li.textContent = taskText + " (" + now + ")";
+
+        // Mark completed
+        if (isCompleted) {
+            li.classList.add("completed");
+        }
+
+        li.addEventListener("click", function () {
+            li.classList.toggle("completed");
+            saveTasks();
+        });
+
+        // Delete button
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "❌";
+        delBtn.style.marginLeft = "10px";
+
+        delBtn.addEventListener("click", function (event) {
+            event.stopPropagation();
+            li.remove();
+            saveTasks();
+        });
+
+        li.appendChild(delBtn);
+        taskList.appendChild(li);
+
+        saveTasks(); // save to localStorage
+    }
+
+    // ✅ Save tasks to localStorage
+    function saveTasks() {
+        let tasks = [];
+        document.querySelectorAll("#task-list li").forEach(li => {
+            tasks.push({
+                text: li.firstChild.textContent,
+                completed: li.classList.contains("completed")
+            });
+        });
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    // ✅ Clear All button
+    clearBtn.addEventListener("click", function () {
+        taskList.innerHTML = "";
+        localStorage.removeItem("tasks");
+    });
+
+    // ✅ Add Task button
+    button.addEventListener("click", function () {
+        if (input.value.trim() !== "") {
+            addTask(input.value);
+            input.value = "";
+        }
+    });
+</script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        text-align: center;
+        padding: 20px;
+    }
+
+    input {
+        padding: 8px;
+        width: 200px;
+    }
+
+    button {
+        padding: 8px 12px;
+        margin-left: 5px;
+        cursor: pointer;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin-top: 20px;
+    }
+
+    li {
+        background: #fff;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 5px;
+        display: inline-block;
+        min-width: 200px;
+    }
+    .completed {
+    text-decoration: line-through;
+    color: gray;
+}
+
+</style>
+
+
+</html>
